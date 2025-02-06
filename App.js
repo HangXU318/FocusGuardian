@@ -1,42 +1,40 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
+import React from "react";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 
 export default function App() {
-  const [focusTime, setFocusTime] = useState(0);
+  const [focusMode, setFocusMode] = React.useState(false);
 
-  // 加载存储的专注时间
-  useEffect(() => {
-    const loadFocusTime = async () => {
-      try {
-        const storedTime = await AsyncStorage.getItem("focusTime");
-        if (storedTime !== null) {
-          setFocusTime(parseInt(storedTime, 10));
-        }
-      } catch (error) {
-        console.error("Failed to load focus time:", error);
-      }
-    };
-    loadFocusTime();
-  }, []);
-
-  // 增加专注时间并存储
-  const increaseFocusTime = async () => {
-    try {
-      const newTime = focusTime + 1;
-      setFocusTime(newTime);
-      await AsyncStorage.setItem("focusTime", newTime.toString());
-    } catch (error) {
-      console.error("Failed to save focus time:", error);
-    }
+  // 切换专注模式
+  const toggleFocusMode = async () => {
+    const newFocusMode = !focusMode;
+    setFocusMode(newFocusMode);
+    await AsyncStorage.setItem("focusMode", JSON.stringify(newFocusMode));
   };
 
+  // 读取存储的专注模式状态
+  React.useEffect(() => {
+    const loadFocusMode = async () => {
+      const storedMode = await AsyncStorage.getItem("focusMode");
+      if (storedMode !== null) {
+        setFocusMode(JSON.parse(storedMode));
+      }
+    };
+    loadFocusMode();
+  }, []);
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, focusMode ? styles.focusMode : null]}>
       <Text style={styles.title}>Focus Guardian</Text>
-      <Text style={styles.text}>专注时间: {focusTime} 分钟</Text>
-      <Button title="增加专注时间" onPress={increaseFocusTime} />
+      <Text style={styles.subtitle}>
+        {focusMode ? "🔒 专注模式已开启" : "🔓 专注模式已关闭"}
+      </Text>
+      <TouchableOpacity style={styles.button} onPress={toggleFocusMode}>
+        <Text style={styles.buttonText}>
+          {focusMode ? "关闭专注模式" : "开启专注模式"}
+        </Text>
+      </TouchableOpacity>
       <StatusBar style="auto" />
     </View>
   );
@@ -46,18 +44,33 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
     justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+  },
+  focusMode: {
+    backgroundColor: "#1E1E1E", // 专注模式黑色背景
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
+    color: "#333",
     marginBottom: 20,
   },
-  text: {
+  subtitle: {
     fontSize: 18,
-    marginBottom: 10,
+    color: "#666",
+    marginBottom: 30,
+  },
+  button: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 8,
+  },
+  buttonText: {
+    fontSize: 16,
+    color: "#fff",
+    fontWeight: "bold",
   },
 });
-
