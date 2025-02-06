@@ -19,13 +19,15 @@
   }
 }
 {
+  "name": "FocusGuardian",
+  "version": "1.0.0",
+  "scripts": {
+    "android": "expo run:android",
+    "ios": "expo run:ios"
+  },
   "expo": {
     "name": "FocusGuardian",
-    "slug": "focusguardian",
-    "version": "1.0.0",
-    "android": {
-      "package": "com.yourname.focusguardian"
-    }
+    "slug": "focusguardian"
   }
 }
 
