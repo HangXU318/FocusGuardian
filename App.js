@@ -1,76 +1,63 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Button, TextInput, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useAppState } from '@react-native-community/hooks';
+import React, { useState, useEffect } from "react";
+import { StyleSheet, Text, View, Button } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StatusBar } from "expo-status-bar";
 
-const FocusGuardian = () => {
-  const [unlockReason, setUnlockReason] = useState('');
-  const [log, setLog] = useState([]);
-  const appState = useAppState();
+export default function App() {
+  const [focusTime, setFocusTime] = useState(0);
 
+  // 加载存储的专注时间
   useEffect(() => {
-    if (appState === 'active') {
-      promptUser();
-    }
-  }, [appState]);
-
-  const promptUser = async () => {
-    Alert.alert(
-      '你为什么解锁手机？',
-      '请输入你的解锁目的',
-      [
-        {
-          text: '取消',
-          style: 'cancel',
-        },
-        {
-          text: '确定',
-          onPress: async () => {
-            if (unlockReason.trim() !== '') {
-              await saveUnlockReason(unlockReason);
-              setUnlockReason('');
-            }
-          },
-        },
-      ],
-      {
-        cancelable: false,
+    const loadFocusTime = async () => {
+      try {
+        const storedTime = await AsyncStorage.getItem("focusTime");
+        if (storedTime !== null) {
+          setFocusTime(parseInt(storedTime, 10));
+        }
+      } catch (error) {
+        console.error("Failed to load focus time:", error);
       }
-    );
-  };
+    };
+    loadFocusTime();
+  }, []);
 
-  const saveUnlockReason = async (reason) => {
+  // 增加专注时间并存储
+  const increaseFocusTime = async () => {
     try {
-      const currentLog = await AsyncStorage.getItem('unlockLog');
-      const updatedLog = currentLog ? JSON.parse(currentLog) : [];
-      updatedLog.push({ reason, timestamp: new Date().toISOString() });
-      await AsyncStorage.setItem('unlockLog', JSON.stringify(updatedLog));
-      setLog(updatedLog);
+      const newTime = focusTime + 1;
+      setFocusTime(newTime);
+      await AsyncStorage.setItem("focusTime", newTime.toString());
     } catch (error) {
-      console.error('存储失败', error);
+      console.error("Failed to save focus time:", error);
     }
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Focus Guardian</Text>
-      <TextInput
-        placeholder='输入解锁目的'
-        value={unlockReason}
-        onChangeText={setUnlockReason}
-        style={{ borderBottomWidth: 1, marginVertical: 10 }}
-      />
-      <Button title='记录' onPress={() => saveUnlockReason(unlockReason)} />
-      <View style={{ marginTop: 20 }}>
-        <Text style={{ fontWeight: 'bold' }}>解锁记录：</Text>
-        {log.map((entry, index) => (
-          <Text key={index}>{entry.timestamp}: {entry.reason}</Text>
-        ))}
-      </View>
+    <View style={styles.container}>
+      <Text style={styles.title}>Focus Guardian</Text>
+      <Text style={styles.text}>专注时间: {focusTime} 分钟</Text>
+      <Button title="增加专注时间" onPress={increaseFocusTime} />
+      <StatusBar style="auto" />
     </View>
   );
-};
+}
 
-export default FocusGuardian;
+// 样式表
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  text: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+});
 
-// GitHub Actions 配置将在 .github/workflows 目录下添加
