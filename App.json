@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "FocusGuardian",
+    "slug": "focusguardian",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "android": {
+      "package": "com.stephen.focusguardian"
+    },
+    "ios": {
+      "bundleIdentifier": "com.stephen.focusguardian"
+    }
+  }
+}
