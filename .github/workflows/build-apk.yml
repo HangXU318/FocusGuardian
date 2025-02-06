@@ -1,47 +1,35 @@
-name: Build Android APK
+name: Build APK
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build:
-    name: Build APK
+    name: Build Android APK
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
 
-      - name: Install Expo CLI
-        run: npm install -g expo-cli
-
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm install
 
-      - name: Login to Expo
-        run: npx expo login -u ${{ secrets.HANGXU318 }} -p ${{ secrets.HANGXUNZ318 }}
+      - name: Install Expo CLI
+        run: npm install -g expo-cli eas-cli
 
+      - name: Authenticate with Expo
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: eas login --token $EXPO_TOKEN
 
-
-      - name: Prebuild Expo Project
-        run: npx expo prebuild --platform android
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-
-      - name: Build APK
-        run: npx expo run:android
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+      - name: Build Android APK
+        run: eas build --platform android --non-interactive
