@@ -16,18 +16,9 @@
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios"
-  }
-}
-{
-  "name": "FocusGuardian",
-  "version": "1.0.0",
-  "scripts": {
-    "android": "expo run:android",
-    "ios": "expo run:ios"
   },
   "expo": {
     "name": "FocusGuardian",
     "slug": "focusguardian"
   }
-}
 }
